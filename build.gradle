@@ -7,9 +7,6 @@ plugins {
 web3j {
     generatedPackageName = 'org.web3j.generated.contracts'
     excludedContracts = ['Mortal']
-
-
-
 }
 
 group 'org.example'
@@ -17,42 +14,54 @@ version '1.0-SNAPSHOT'
 
 repositories {
     jcenter()
+    // Local testing
+    mavenLocal()
+    mavenCentral()
     maven { url 'https://oss.sonatype.org/content/repositories/releases/' }
     maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
-    mavenCentral()
+
     maven { url "https://hyperledger.jfrog.io/artifactory/besu-maven/" }
     maven { url "https://artifacts.consensys.net/public/maven/maven/" }
     maven { url "https://splunk.jfrog.io/splunk/ext-releases-local" }
     maven { url "https://dl.cloudsmith.io/public/consensys/quorum-mainnet-launcher/maven/" }
 }
-ext {
-    besuPluginVersion = '21.7.2'
-    besuInternalVersion = '21.7.2'
-    besuCryptoDepVersion = '0.3.0'
-
-}
 
 dependencies {
-    testImplementation "org.web3j:web3j-unit:4.8.8"
     implementation "org.jetbrains.kotlin:kotlin-stdlib"
+
+    testImplementation("org.web3j:web3j-unit:4.8.8") {
+        exclude group: 'ch.qos.logback', module: 'logback-classic'
+        // Local testing
+        exclude group: 'org.web3j', module:'web3j-evm'
+    }
+    // Local testing
+    testImplementation "org.web3j:web3j-evm:4.8.8-SNAPSHOT"
+
+    // Just to use Wei type, can be avoided
+    testImplementation "org.hyperledger.besu:plugin-api:21.7.2"
+    testImplementation "org.hyperledger.besu.internal:core:21.7.2"
+
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.0'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.7.0'
-    implementation group: 'com.github.jnr', name: 'jffi', version: '1.2.17'
-    testImplementation group: 'com.github.jnr', name: 'jffi', version: '1.2.17'
-    testImplementation "org.hyperledger.besu:plugin-api:$besuPluginVersion"
-    testImplementation "org.hyperledger.besu.internal:besu:$besuInternalVersion"
-    testImplementation "org.hyperledger.besu.internal:api:$besuInternalVersion"
-    testImplementation "org.hyperledger.besu.internal:config:$besuInternalVersion"
-    testImplementation "org.hyperledger.besu.internal:core:$besuInternalVersion"
-    testImplementation "org.hyperledger.besu.internal:crypto:$besuInternalVersion"
-    testImplementation "org.hyperledger.besu.internal:rlp:$besuInternalVersion"
-    testImplementation "org.hyperledger.besu.internal:kvstore:$besuInternalVersion"
-    testImplementation "org.hyperledger.besu.internal:metrics-core:$besuInternalVersion"
-    testImplementation "org.hyperledger.besu.internal:trie:$besuInternalVersion"
-    testImplementation "org.hyperledger.besu.internal:util:$besuInternalVersion"
-    testImplementation "org.hyperledger.besu:bls12-381:$besuCryptoDepVersion"
-    testImplementation "org.hyperledger.besu:secp256k1:$besuCryptoDepVersion"
+}
 
+compileKotlin {
+    doFirst {
+        destinationDir = compileJava.destinationDir
+    }
+    kotlinOptions {
+        jvmTarget = "1.8"
+    }
+}
+
+compileTestKotlin {
+    kotlinOptions {
+        jvmTarget = "1.8"
+    }
+}
+
+jar {
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 }
 
 test {
