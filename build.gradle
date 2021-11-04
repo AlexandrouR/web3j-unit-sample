@@ -6,7 +6,6 @@ plugins {
 }
 web3j {
     generatedPackageName = 'org.web3j.generated.contracts'
-    excludedContracts = ['Mortal']
 }
 
 group 'org.example'
