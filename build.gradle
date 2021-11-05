@@ -2,7 +2,6 @@ plugins {
     id 'java'
     id 'org.web3j' version '4.8.8'
     id 'org.jetbrains.kotlin.jvm' version '1.3.61'
-
 }
 web3j {
     generatedPackageName = 'org.web3j.generated.contracts'
@@ -36,6 +35,7 @@ dependencies {
     // Local testing
     testImplementation "org.web3j:web3j-evm:4.8.8-SNAPSHOT"
 
+
     // Just to use Wei type, can be avoided
     testImplementation "org.hyperledger.besu:plugin-api:21.7.2"
     testImplementation "org.hyperledger.besu.internal:core:21.7.2"
@@ -65,4 +65,11 @@ jar {
 
 test {
     useJUnitPlatform()
+}
+
+configurations.all {
+    resolutionStrategy {
+        force "org.web3j:abi:4.8.8"
+        //failOnVersionConflict()
+    }
 }

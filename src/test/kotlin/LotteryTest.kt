@@ -1,6 +1,7 @@
 import org.hyperledger.besu.ethereum.core.Wei
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
+import org.junit.jupiter.api.Order
 import org.junit.jupiter.api.Test
 import org.web3j.EVMTest
 import org.web3j.NodeType
@@ -26,6 +27,7 @@ class LotteryTest {
     }
 
     @Test
+    @Order(0)
     fun `test simple play`(
         web3j: Web3j,
         transactionManager: TransactionManager,
@@ -57,13 +59,8 @@ class LotteryTest {
         // Manager enters as a player as well :D
         lottery.enter(Wei.fromEth(1).asBigInteger).send()
 
-        // TODO web3j bug to be fixed
-        // Address arrays are not properly decoded as response
-        // val encodedFunction = lottery.players.encodeFunctionCall()
-        // val ethRes = web3j.ethCall(
-        //    Transaction.createEthCallTransaction("0x", lottery.contractAddress, encodedFunction),
-        //    DefaultBlockParameter.valueOf("latest")
-        //).send()
+        val players = lottery.players.send()
+        assertEquals(2, players.size)
 
         lottery.pickWinner().send()
 
@@ -84,6 +81,16 @@ M   $managerDiff
 i   $managerInitialBalance
 f   $managerFinalBalance
          """)
+    }
+
+    @Test
+    @Order(1)
+    fun `test after simple play`(
+        web3j: Web3j,
+        transactionManager: TransactionManager,
+        contractGasProvider: ContractGasProvider
+    ) {
+        println(getBalance(web3j, TEST_ACCOUNTS.keys.toList()[0]))
     }
 
     private fun getBalance(web3j: Web3j, managerAddress: String) =
